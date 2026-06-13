@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://seudominio.com.br/sitemap.xml
+Sitemap: https://jp-severo.vercel.app/sitemap.xml
