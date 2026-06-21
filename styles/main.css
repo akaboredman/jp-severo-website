@@ -537,6 +537,12 @@ em { font-style: normal; font-weight: 500; color: var(--text-primary); }
   padding: 28px;
   background: linear-gradient(180deg, #1a1512, #15110f);
   box-shadow: var(--shadow-card);
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+.step:hover {
+  transform: translateY(-4px);
+  border-color: rgba(237, 138, 63, 0.32);
+  box-shadow: var(--shadow-lift);
 }
 .step__num {
   display: block;
