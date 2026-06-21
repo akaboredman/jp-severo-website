@@ -564,6 +564,7 @@ em { font-style: normal; font-weight: 500; color: var(--text-primary); }
   align-items: center;
   gap: 12px;
   margin-top: 28px;
+  margin-bottom: 44px;
   padding: 10px 18px;
   border: 1px solid rgba(237, 138, 63, 0.3);
   border-radius: var(--radius-full);
