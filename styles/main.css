@@ -283,15 +283,6 @@ em { font-style: normal; font-weight: 500; color: var(--text-primary); }
   animation: pulse 2s infinite;
 }
 
-.hero__title-row {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  flex-wrap: wrap;
-}
-.hero__title-row .hero__title { margin-bottom: 26px; }
-.hero__title-cta { flex-shrink: 0; }
-
 .hero__title {
   font-family: var(--font-heading);
   font-weight: 700;
@@ -1418,6 +1409,15 @@ select.form-input {
   padding-bottom: 32px;
 }
 .article-page__header .tag { margin-bottom: 20px; }
+.article-page__title-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+.article-page__title-row .article-page__title { margin-bottom: 0; }
+.article-page__title-cta { flex-shrink: 0; }
 .article-page__title {
   font-family: var(--font-heading);
   font-weight: 700;
