@@ -220,6 +220,7 @@ em { font-style: normal; font-weight: 500; color: var(--text-primary); }
   box-shadow: 0 14px 32px -8px rgba(237, 138, 63, 0.6);
 }
 .btn--lg { font-size: 1rem; padding: 16px 30px; border-radius: 12px; }
+.btn--sm { font-size: 0.8rem; padding: 7px 16px; }
 .btn--full { width: 100%; border-radius: var(--radius-sm); padding: 14px; font-size: 1rem; }
 .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
@@ -281,6 +282,15 @@ em { font-style: normal; font-weight: 500; color: var(--text-primary); }
   flex-shrink: 0;
   animation: pulse 2s infinite;
 }
+
+.hero__title-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+.hero__title-row .hero__title { margin-bottom: 26px; }
+.hero__title-cta { flex-shrink: 0; }
 
 .hero__title {
   font-family: var(--font-heading);
