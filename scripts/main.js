@@ -28,6 +28,23 @@ if (navToggle && navMenu) {
   });
 }
 
+/* ── Article answer toggles ───────────────────────── */
+document.querySelectorAll('[data-answer-toggle]').forEach(function (toggle) {
+  const answers = document.getElementById(toggle.getAttribute('aria-controls'));
+  const label = toggle.querySelector('.answer-toggle__label');
+  const icon = toggle.querySelector('.answer-toggle__icon');
+
+  if (!answers) return;
+
+  toggle.addEventListener('click', function () {
+    const open = toggle.getAttribute('aria-expanded') === 'true';
+    toggle.setAttribute('aria-expanded', String(!open));
+    answers.hidden = open;
+    if (label) label.textContent = open ? 'Mostrar respostas' : 'Ocultar respostas';
+    if (icon) icon.textContent = open ? '+' : '−';
+  });
+});
+
 /* ── Contact form → WhatsApp ──────────────────────── */
 const form = document.getElementById('contact-form');
 
