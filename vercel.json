@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/aula", "destination": "/aula.html" },
+    { "source": "/aula/", "destination": "/aula.html" }
+  ]
+}

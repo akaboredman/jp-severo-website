@@ -59,9 +59,9 @@ if (form) {
 
     const nome         = getVal('nome').trim();
     const whatsapp     = getVal('whatsapp').trim();
-    const nivel        = getVal('nivel') || 'Não informado';
+    const nivel        = getVal('nivel').trim();
     const objetivo     = getVal('objetivo');
-    const disponibilidade = getVal('disponibilidade').trim() || 'Não informado';
+    const disponibilidade = getVal('disponibilidade').trim();
 
     if (!nome)     showError('nome',     'Por favor, informe seu nome.');
     if (!whatsapp) showError('whatsapp', 'Por favor, informe seu WhatsApp.');
@@ -69,18 +69,32 @@ if (form) {
 
     if (!valid) return;
 
-    const msg =
-      'Olá, JP! Me chamo ' + nome + '.\n\n' +
-      'Nível de inglês: ' + nivel + '\n' +
-      'Objetivo: ' + objetivo + '\n' +
-      'Disponibilidade: ' + disponibilidade + '\n\n' +
-      'Gostaria de agendar uma aula experimental!';
+    const details = [];
+    if (nivel) details.push('Nível de inglês: ' + nivel);
+    details.push('Objetivo: ' + objetivo);
+    if (disponibilidade) details.push('Disponibilidade: ' + disponibilidade);
 
-    window.open(
-      'https://wa.me/5521972004450?text=' + encodeURIComponent(msg),
-      '_blank',
-      'noopener,noreferrer'
-    );
+    const msg = [
+      'Olá, JP! Me chamo ' + nome + '.',
+      '',
+      ...details,
+      '',
+      'Gostaria de agendar uma aula experimental!'
+    ].join('\n');
+
+    const whatsappUrl = 'https://wa.me/5521972004450?text=' + encodeURIComponent(msg);
+
+    if (typeof fbq === 'function') {
+      fbq('track', 'Lead', {
+        content_name: form.dataset.leadLabel || 'Aula experimental',
+        content_category: 'WhatsApp'
+      });
+      setTimeout(function () {
+        window.location.href = whatsappUrl;
+      }, 150);
+    } else {
+      window.location.href = whatsappUrl;
+    }
   });
 
   // Live validation feedback
