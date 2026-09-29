@@ -128,7 +128,7 @@ async function renderHome() {
         h('span', { class: 'deck-row__title' }, `Aula ${deck.lessonNumber} · ${deck.title || ''}`),
         h('span', { class: 'deck-row__meta' }, niceDate(deck.lessonDate)),
         h('span', { class: `deck-row__state deck-row__state--${deck.done ? 'done' : 'new'}` },
-          deck.done ? `Feito · ${deck.best.correct}/${deck.best.total}` : 'Novo')))
+          deck.done ? `Feito · ${deck.best.correct} de ${deck.best.total}` : 'Novo')))
       : [h('p', { class: 'deck-list__empty' }, 'Seu primeiro deck aparece aqui depois da próxima aula.')];
     show(
       h('h1', {}, `Olá, ${session.firstName}!`),
@@ -136,6 +136,11 @@ async function renderHome() {
       progress ? progressStrip(progress) : null,
       bonus,
       h('div', { class: 'deck-list', role: 'list' }, rows),
+      // Discreto, depois dos decks: praticar vem primeiro. Nunca para menores.
+      session.referralCode && decks.length
+        ? h('button', { class: 'suggestions-link', onclick: () => renderSuggestions(decks[0].id) },
+          'Sugestões de leitura →')
+        : null,
     );
   }, renderHome);
 }
@@ -411,7 +416,8 @@ async function finish() {
 function showResult(result, session) {
   const nodes = [
     h('h1', {}, 'Deck concluído!'),
-    h('p', { class: 'result__score' }, `${result.correct}/${result.total}`),
+    h('p', { class: 'result__score' }, `${result.correct} de ${result.total}`),
+    h('p', { class: 'result__caption' }, `${result.total === 1 ? 'exercício certo' : 'exercícios certos'}. Os flashcards não entram na conta.`),
     result.progress ? progressStrip(result.progress, true) : null,
   ];
   const referral = referralSection(session, result.completedDecks);
@@ -466,39 +472,70 @@ function referralSection(session, completedDecks) {
     }, 'Indicar pelo WhatsApp')));
 }
 
-// "Quer praticar mais?": um livro em destaque (muda a cada aula) e a estante recolhida.
-// A Mesa não publica livros para menores; aqui a sessão confirma (menores não têm código).
-// Links simples, sem scripts da Amazon.
+// Sugestões de leitura: um livro em destaque (muda a cada aula) e as outras sugestões em
+// carrosséis de capas. A Mesa não publica livros para menores; aqui a sessão confirma
+// (menores não têm código). Links simples e capas guardadas no próprio site: nenhum script
+// ou imagem da Amazon.
 const SHELF_GROUPS = { lighter: 'Leitura leve', level: 'No seu nível', challenge: 'Desafio' };
-function bookLink(book, className) {
+const AFFILIATE_NOTE = 'Links de afiliado: como associado da Amazon, o JP ganha uma pequena comissão com compras qualificadas, sem custo extra para você.';
+function bookLink(book, className, ...children) {
   return h('a', { class: className, href: book.url, target: '_blank', rel: 'sponsored noopener noreferrer' },
-    book.title);
+    ...(children.length ? children : [book.title]));
 }
-function booksSection(books, session) {
+function bookCover(book) {
+  return book.cover
+    ? h('img', { class: 'book-cover', src: book.cover, alt: `Capa de ${book.title}`, loading: 'lazy', width: 180, height: 270 })
+    : h('span', { class: 'book-cover book-cover--blank', 'aria-hidden': 'true' }, book.title);
+}
+function readBooks(books, session) {
   if (!books || !session?.referralCode) return null;
   const highlights = Array.isArray(books) ? books : books.highlights || [];
   const shelf = Array.isArray(books) ? {} : books.shelf || {};
   const groups = Object.keys(SHELF_GROUPS).filter((name) => shelf[name]?.length);
-  if (!highlights.length && !groups.length) return null;
-  const highlight = (book) => h('li', { class: 'books__item' },
-    book.quote ? h('blockquote', { class: 'books__quote', lang: 'en' }, `“${book.quote}”`) : null,
-    bookLink(book, 'books__title'),
-    h('span', { class: 'books__author' }, ` — ${book.author}`),
-    book.reason ? h('p', { class: 'books__reason' }, book.reason) : null);
-  const shelfItem = (book) => h('li', { class: 'shelf__item' },
-    bookLink(book, 'books__title'), h('span', { class: 'books__author' }, ` — ${book.author}`),
-    book.reason ? h('p', { class: 'books__reason' }, book.reason) : null);
+  return highlights.length || groups.length ? { highlights, shelf, groups } : null;
+}
+function highlightCard(book) {
+  return h('li', { class: 'books__item' },
+    bookLink(book, 'books__cover-link', bookCover(book)),
+    h('div', { class: 'books__body' },
+      book.quote ? h('blockquote', { class: 'books__quote', lang: 'en' }, `“${book.quote}”`) : null,
+      bookLink(book, 'books__title'),
+      h('span', { class: 'books__author' }, book.author),
+      book.reason ? h('p', { class: 'books__reason' }, book.reason) : null));
+}
+function carousels({ shelf, groups }) {
+  return groups.map((name) => h('div', { class: 'shelf__group' },
+    h('h3', { class: 'shelf__title' }, SHELF_GROUPS[name]),
+    h('ul', { class: 'carousel', 'aria-label': SHELF_GROUPS[name] }, shelf[name].map((book) =>
+      h('li', { class: 'carousel__item' },
+        bookLink(book, 'carousel__link', bookCover(book),
+          h('span', { class: 'carousel__title' }, book.title),
+          h('span', { class: 'carousel__author' }, book.author)))))));
+}
+function booksSection(books, session) {
+  const data = readBooks(books, session);
+  if (!data) return null;
   return h('section', { class: 'result__section books' },
     h('h2', {}, 'Quer praticar mais?'),
-    highlights.length ? h('p', { class: 'pratica__lead' }, 'Ler em inglês é um dos melhores treinos. Uma sugestão para você:') : null,
-    highlights.length ? h('ul', { class: 'books__list' }, highlights.map(highlight)) : null,
-    groups.length ? h('details', { class: 'shelf' },
-      h('summary', { class: 'shelf__toggle' }, 'Ver a estante'),
-      ...groups.map((name) => h('div', { class: 'shelf__group' },
-        h('h3', { class: 'shelf__title' }, SHELF_GROUPS[name]),
-        h('ul', { class: 'shelf__list' }, shelf[name].map(shelfItem))))) : null,
-    h('p', { class: 'books__disclosure' },
-      'Links de afiliado: como associado da Amazon, o JP ganha uma pequena comissão com compras qualificadas, sem custo extra para você.'));
+    data.highlights.length ? h('p', { class: 'pratica__lead' }, 'Ler em inglês é um dos melhores treinos. Uma sugestão para você:') : null,
+    data.highlights.length ? h('ul', { class: 'books__list' }, data.highlights.map(highlightCard)) : null,
+    data.groups.length ? h('details', { class: 'shelf' },
+      h('summary', { class: 'shelf__toggle' }, 'Ver mais sugestões'), ...carousels(data)) : null,
+    h('p', { class: 'books__disclosure' }, AFFILIATE_NOTE));
+}
+// Página própria, aberta pela linha discreta no fim da lista de decks.
+async function renderSuggestions(deckId) {
+  await guarded(async () => {
+    const data = readBooks((await api(`/api/deck?id=${encodeURIComponent(deckId)}`)).deck.books, state.session);
+    show(
+      h('h1', {}, 'Sugestões de leitura'),
+      data ? h('p', { class: 'pratica__lead' }, 'Livros escolhidos pelo JP para o seu nível. Toque na capa para ver na Amazon.')
+        : h('p', { class: 'pratica__lead' }, 'As sugestões aparecem aqui depois do seu próximo deck.'),
+      data?.highlights.length ? h('ul', { class: 'books__list' }, data.highlights.map(highlightCard)) : null,
+      ...(data ? carousels(data) : []),
+      data ? h('p', { class: 'books__disclosure' }, AFFILIATE_NOTE) : null,
+      h('div', { class: 'actions' }, h('button', { class: 'btn btn--primary', onclick: renderHome }, 'Voltar aos decks')));
+  }, () => renderSuggestions(deckId));
 }
 
 /* ---------- Início da página ---------- */
