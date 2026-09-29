@@ -214,13 +214,17 @@ function renderStep() {
 // O comando muda com o tipo de frente: lacuna, palavra ou definição. Do B2 em diante os
 // cartões são todos em inglês, então o comando também.
 const CARD_PROMPTS = {
-  pt: { gap: 'Complete a frase.', word: 'O que significa?', meaning: 'Qual é a palavra com este significado?' },
-  en: { gap: 'Complete the sentence.', word: 'What does it mean?', meaning: 'Which word matches this meaning?' },
+  pt: { gap: 'Complete a frase.', word: 'O que significa?',
+    meaning: 'Qual é a palavra com este significado?', phrase: 'Qual é a expressão com este significado?' },
+  en: { gap: 'Complete the sentence.', word: 'What does it mean?',
+    meaning: 'Which word matches this meaning?', phrase: 'Which phrase matches this meaning?' },
 };
 function cardPrompt(front, answer) {
   const prompts = CARD_PROMPTS[['B2', 'C1', 'C2'].includes(state.run?.deck?.lesson?.cefr) ? 'en' : 'pt'];
   if (String(front).includes('___')) return prompts.gap;
-  return front === answer ? prompts.word : prompts.meaning;
+  if (front === answer) return prompts.word;
+  // "water cooler talk" é uma expressão, não uma palavra.
+  return String(answer).trim().includes(' ') ? prompts.phrase : prompts.meaning;
 }
 function renderCard(item, body, actions, next) {
   const front = item.front ?? item.word;
