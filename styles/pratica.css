@@ -223,3 +223,12 @@ a.pratica-nav__label { text-decoration: none; }
 .progress-strip__item { color: var(--text-body); line-height: 1.5; }
 .progress-strip__item b { color: var(--text-primary); }
 .progress-strip__item--muted { color: var(--text-muted); font-size: .92rem; }
+
+/* "Quer praticar mais?" (livros no fim do deck) */
+.books__list { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 14px; }
+.books__item { padding: 14px 16px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-card); }
+.books__title { font-weight: 600; color: var(--accent-dark); }
+.books__author { color: var(--text-muted); }
+.books__reason { margin: 6px 0 0; color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; }
+.books__label { margin: 20px 0 0; color: var(--text-muted); font-size: 0.95rem; }
+.books__disclosure { margin: 16px 0 0; color: var(--text-muted); font-size: 0.85rem; }

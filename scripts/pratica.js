@@ -89,8 +89,9 @@ const state = { token: null, session: null, preview: false };
 function showInvalid() {
   local.remove(TOKEN_KEY);
   show(
-    h('h1', {}, 'Link inválido ou desativado'),
-    h('p', { class: 'pratica__lead' }, 'Peça ao JP um link novo pelo WhatsApp. Cada aluno tem um link pessoal.'),
+    h('h1', {}, 'Que bom ver você por aqui!'),
+    h('p', { class: 'pratica__lead' }, 'Para entrar na sua área de prática, abra o link pessoal que o JP mandou para você no WhatsApp.'),
+    h('p', { class: 'pratica__lead' }, 'Se o link não abrir, é só pedir um novo ao JP. Ele manda rapidinho.'),
   );
 }
 function showError(retry) {
@@ -415,6 +416,8 @@ function showResult(result, session) {
   ];
   const referral = referralSection(session, result.completedDecks);
   if (referral) nodes.push(referral);
+  const books = booksSection(state.run?.deck?.books, session);
+  if (books) nodes.push(books);
   nodes.push(h('div', { class: 'actions' },
     h('button', { class: 'btn btn--primary', onclick: state.preview ? () => window.close() : renderHome }, 'Voltar aos decks')));
   show(...nodes);
@@ -461,6 +464,28 @@ function referralSection(session, completedDecks) {
       class: prominent ? 'btn btn--primary' : 'btn btn--ghost',
       href: `https://wa.me/?text=${encodeURIComponent(message)}`, target: '_blank', rel: 'noopener noreferrer',
     }, 'Indicar pelo WhatsApp')));
+}
+
+// "Quer praticar mais?": livros escolhidos para o aluno, só no fim do deck.
+// A Mesa não publica livros para menores; aqui a sessão confirma (menores não têm código).
+// Links simples, sem scripts da Amazon.
+function booksSection(books, session) {
+  if (!Array.isArray(books) || !books.length || !session?.referralCode) return null;
+  const item = (book) => h('li', { class: 'books__item' },
+    h('a', { class: 'books__title', href: book.url, target: '_blank', rel: 'sponsored noopener noreferrer' },
+      book.title),
+    h('span', { class: 'books__author' }, ` — ${book.author}`),
+    book.reason ? h('p', { class: 'books__reason' }, book.reason) : null);
+  const reading = books.filter((book) => book.kind !== 'support');
+  const support = books.filter((book) => book.kind === 'support');
+  return h('section', { class: 'result__section books' },
+    h('h2', {}, 'Quer praticar mais?'),
+    h('p', { class: 'pratica__lead' }, 'Ler em inglês é um dos melhores treinos. Separei estes livros pensando em você:'),
+    h('ul', { class: 'books__list' }, reading.map(item)),
+    support.length ? h('p', { class: 'books__label' }, 'Se quiser um apoio de estudo:') : null,
+    support.length ? h('ul', { class: 'books__list' }, support.map(item)) : null,
+    h('p', { class: 'books__disclosure' },
+      'Links de afiliado: como associado da Amazon, o JP ganha uma pequena comissão com compras qualificadas, sem custo extra para você.'));
 }
 
 /* ---------- Início da página ---------- */
