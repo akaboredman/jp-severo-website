@@ -217,3 +217,9 @@ a.pratica-nav__label { text-decoration: none; }
 }
 .type-in:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .item__instruction { margin-top: 6px; font-size: .92rem; line-height: 1.45; color: var(--text-muted); }
+
+/* ---------- Progresso pessoal ---------- */
+.progress-strip { margin-top: 20px; padding: 0; list-style: none; display: grid; gap: 6px; }
+.progress-strip__item { color: var(--text-body); line-height: 1.5; }
+.progress-strip__item b { color: var(--text-primary); }
+.progress-strip__item--muted { color: var(--text-muted); font-size: .92rem; }

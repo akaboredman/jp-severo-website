@@ -1,6 +1,7 @@
-import { rpc, select } from './_lib/db.js';
+import { insert, select } from './_lib/db.js';
 import { gradeDeck } from '../scripts/practice-grading.js';
 import { isUuid, send, studentRoute } from './_lib/http.js';
+import { progressFor } from './_lib/progress.js';
 
 const MAX_BODY_CHARS = 50_000;
 
@@ -13,29 +14,33 @@ export default studentRoute('POST', async (req, res, student) => {
   if (!isUuid(body.deckId)) return send(res, 400, { error: 'invalid_deck' });
 
   const rows = await select('decks',
-    `select=id,content&id=eq.${body.deckId}&student_id=eq.${student.id}&limit=1`);
+    `select=id,version,content&id=eq.${body.deckId}&student_id=eq.${student.id}&limit=1`);
   if (!rows[0]) return send(res, 404, { error: 'deck_not_found' });
 
   const grade = gradeDeck(rows[0].content, body.answers);
   if (!grade.complete) return send(res, 422, { error: 'incomplete', missing: grade.missing });
 
-  const recorded = await rpc('record_completion', {
-    p_student: student.id,
-    p_deck: body.deckId,
-    p_answers: grade.answers,
-    p_correct: grade.correct,
-    p_total: grade.total,
+  const previous = await select('attempts',
+    `select=deck_id&student_id=eq.${student.id}&completed_at=not.is.null`);
+  const first = !previous.some((attempt) => attempt.deck_id === body.deckId);
+  await insert('attempts', {
+    student_id: student.id,
+    deck_id: body.deckId,
+    deck_version: rows[0].version,
+    is_redo: !first,
+    answers: grade.answers,
+    correct: grade.correct,
+    total: grade.total,
+    completed_at: new Date().toISOString(),
   });
-  const completions = await select('attempts',
-    `select=id&student_id=eq.${student.id}&completed_at=not.is.null&is_redo=is.false`);
 
   return send(res, 200, {
     correct: grade.correct,
     total: grade.total,
     results: grade.results,
-    first: recorded.first,
-    pointsAwarded: recorded.points,
-    completedDecks: completions.length,
+    first,
+    completedDecks: new Set([...previous.map((a) => a.deck_id), body.deckId]).size,
+    progress: await progressFor(student.id),
   });
 });
 

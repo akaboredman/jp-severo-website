@@ -19,7 +19,7 @@ export async function authenticate(req) {
   const token = header.startsWith('Bearer ') ? header.slice(7).trim() : '';
   if (!TOKEN_RE.test(token)) return null;
   const rows = await select('students',
-    `select=id,first_name,nickname,is_minor,guardian_consent_at,ranking_opt_in,referral_code`
+    `select=id,first_name,is_minor,referral_code`
     + `&token_hash=eq.${hashToken(token)}&active=is.true&limit=1`);
   return rows[0] || null;
 }

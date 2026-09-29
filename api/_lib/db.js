@@ -33,4 +33,4 @@ async function request(path, { method = 'GET', body, headers = {} } = {}) {
 }
 
 export const select = (table, query) => request(`${table}?${query}`);
-export const rpc = (fn, args) => request(`rpc/${fn}`, { method: 'POST', body: args });
+export const insert = (table, row) => request(table, { method: 'POST', body: row });

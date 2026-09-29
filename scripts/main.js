@@ -45,6 +45,26 @@ document.querySelectorAll('[data-answer-toggle]').forEach(function (toggle) {
   });
 });
 
+/* ── Referral code (?ref=) from a student's WhatsApp invite ── */
+const REF_KEY = 'jp.ref';
+const REF_DAYS = 60;
+const REF_RE = /^[a-z0-9]{4,12}$/;
+
+(function captureReferral() {
+  try {
+    const code = new URLSearchParams(location.search).get('ref');
+    if (code && REF_RE.test(code)) localStorage.setItem(REF_KEY, JSON.stringify({ code: code, at: Date.now() }));
+  } catch (e) { /* sem storage */ }
+})();
+
+function referralCode() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(REF_KEY));
+    if (saved && REF_RE.test(saved.code) && Date.now() - saved.at < REF_DAYS * 864e5) return saved.code;
+  } catch (e) { /* sem storage */ }
+  return '';
+}
+
 /* ── Contact form → WhatsApp ──────────────────────── */
 const form = document.getElementById('contact-form');
 
@@ -97,7 +117,7 @@ if (form) {
       ...details,
       '',
       'Gostaria de agendar uma aula experimental!'
-    ].join('\n');
+    ].concat(referralCode() ? ['', 'Código de indicação: ' + referralCode()] : []).join('\n');
 
     const whatsappUrl = 'https://wa.me/5521972004450?text=' + encodeURIComponent(msg);
 

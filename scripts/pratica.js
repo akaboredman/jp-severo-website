@@ -110,9 +110,10 @@ async function guarded(fn, retry) {
 /* ---------- Início ---------- */
 async function renderHome() {
   await guarded(async () => {
-    const [session, decks] = await Promise.all([
+    const [session, decks, progress] = await Promise.all([
       state.session ? Promise.resolve(state.session) : api('/api/session'),
       api('/api/decks'),
+      api('/api/progress').catch(() => null),
     ]);
     state.session = session;
     const bonus = session.bonuses?.available
@@ -131,6 +132,7 @@ async function renderHome() {
     show(
       h('h1', {}, `Olá, ${session.firstName}!`),
       h('p', { class: 'pratica__lead' }, 'Aqui ficam os exercícios de cada aula. Leva uns 10 minutos.'),
+      progress ? progressStrip(progress) : null,
       bonus,
       h('div', { class: 'deck-list', role: 'list' }, rows),
     );
@@ -393,7 +395,8 @@ async function finish() {
   if (state.preview) {
     const total = run.steps.filter((s) => s.item.type !== 'card').length;
     const correct = run.steps.filter((s) => s.item.type !== 'card' && gradeItem(s.item, run.answers[s.item.id])).length;
-    return showResult({ correct, total, pointsAwarded: 0, completedDecks: 3 },
+    return showResult({ correct, total, completedDecks: 3,
+      progress: { streakWeeks: 3, practicedThisWeek: true, weekGoal: { done: 1, total: 2 }, communityThisWeek: 24 } },
       { referralCode: 'preview', firstName: 'Aluno' });
   }
   show(h('p', { class: 'pratica__status' }, 'Salvando seu resultado…'));
@@ -408,15 +411,39 @@ function showResult(result, session) {
   const nodes = [
     h('h1', {}, 'Deck concluído!'),
     h('p', { class: 'result__score' }, `${result.correct}/${result.total}`),
-    h('p', { class: 'result__points' }, result.pointsAwarded
-      ? `+${result.pointsAwarded} pontos na semana.`
-      : 'Revisão feita. Os pontos desta semana por este deck já foram contados.'),
+    result.progress ? progressStrip(result.progress, true) : null,
   ];
   const referral = referralSection(session, result.completedDecks);
   if (referral) nodes.push(referral);
   nodes.push(h('div', { class: 'actions' },
     h('button', { class: 'btn btn--primary', onclick: state.preview ? () => window.close() : renderHome }, 'Voltar aos decks')));
   show(...nodes);
+}
+
+// Progresso pessoal, sem comparar alunos: semanas seguidas, meta da semana e
+// quantos decks todos os alunos fizeram na semana (sem nomes).
+const COMMUNITY_MIN = 3;
+function progressStrip(progress, afterDeck = false) {
+  const items = [];
+  const weeks = progress.streakWeeks || 0;
+  if (weeks >= 1) {
+    items.push(h('li', { class: 'progress-strip__item' },
+      h('b', {}, weeks === 1 ? '1 semana' : `${weeks} semanas`), ' seguidas praticando',
+      progress.practicedThisWeek ? '' : '. Faça um deck esta semana para manter.'));
+  } else if (!afterDeck) {
+    items.push(h('li', { class: 'progress-strip__item' }, 'Faça um deck esta semana e comece sua sequência.'));
+  }
+  const goal = progress.weekGoal || { done: 0, total: 0 };
+  if (goal.total > 0) {
+    items.push(h('li', { class: 'progress-strip__item' }, 'Meta da semana: ',
+      h('b', {}, `${goal.done} de ${goal.total}`), goal.total === 1 ? ' deck' : ' decks',
+      goal.done >= goal.total ? '. Meta cumprida!' : ''));
+  }
+  if ((progress.communityThisWeek || 0) >= COMMUNITY_MIN) {
+    items.push(h('li', { class: 'progress-strip__item progress-strip__item--muted' },
+      `Esta semana os alunos do JP fizeram ${progress.communityThisWeek} decks.`));
+  }
+  return items.length ? h('ul', { class: 'progress-strip', 'aria-label': 'Seu progresso' }, items) : null;
 }
 
 // Discreto em todo deck; em destaque no 3º concluído e depois a cada 5. Nunca para menores.

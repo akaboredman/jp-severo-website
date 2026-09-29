@@ -3,13 +3,12 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { hashToken } from '../api/_lib/http.js';
 import complete from '../api/complete.js';
-import ranking from '../api/ranking.js';
 import session from '../api/session.js';
 
 const deck = JSON.parse(readFileSync(new URL('./fixtures/example-deck.json', import.meta.url)));
 const TOKEN = 'a'.repeat(43);
-const STUDENT = { id: '11111111-1111-4111-8111-111111111111', first_name: 'Ana', nickname: 'Ace',
-  is_minor: false, guardian_consent_at: null, ranking_opt_in: true, referral_code: 'k7p2' };
+const STUDENT = { id: '11111111-1111-4111-8111-111111111111', first_name: 'Ana',
+  is_minor: false, referral_code: 'k7p2' };
 const DECK_ID = '22222222-2222-4222-8222-222222222222';
 
 let calls;
@@ -57,7 +56,6 @@ test('minors never receive a referral code', async () => {
   const r = res();
   await session(req('GET'), r);
   assert.equal(r.body.referralCode, null);
-  assert.equal(r.body.canJoinRanking, false);
 });
 
 test('incomplete submissions are rejected before recording', async () => {
@@ -65,12 +63,12 @@ test('incomplete submissions are rejected before recording', async () => {
   const r = res();
   await complete(req('POST', { body: { deckId: DECK_ID, answers: { g1: 0 } } }), r);
   assert.equal(r.statusCode, 422);
-  assert.ok(!calls.some((c) => c.url.includes('rpc/record_completion')));
+  assert.ok(!calls.some((c) => c.init.method === 'POST'));
 });
 
-test('complete submissions are regraded and recorded', async () => {
-  routes.push(['students?', [STUDENT]], ['decks?', [{ id: DECK_ID, content: deck }]],
-    ['rpc/record_completion', { first: true, points: 17 }], ['attempts?', [{ id: 'x' }]]);
+test('complete submissions are regraded and stored without points', async () => {
+  routes.push(['students?', [STUDENT]], ['decks?', [{ id: DECK_ID, version: 2, content: deck }]],
+    ['attempts?', []]);
   const answers = Object.fromEntries(deck.blocks.flatMap((b) => b.items)
     .filter((i) => i.type !== 'card')
     .map((i) => [i.id, i.type === 'match' ? Object.fromEntries(i.pairs.map((p) => [p.left, p.right]))
@@ -78,27 +76,17 @@ test('complete submissions are regraded and recorded', async () => {
   const r = res();
   await complete(req('POST', { body: { deckId: DECK_ID, answers } }), r);
   assert.equal(r.statusCode, 200);
-  assert.equal(r.body.pointsAwarded, 17);
-  const rpcCall = calls.find((c) => c.url.includes('rpc/record_completion'));
-  const args = JSON.parse(rpcCall.init.body);
-  assert.equal(args.p_total, 10);
-  assert.equal(args.p_correct, r.body.correct);
+  const stored = JSON.parse(calls.find((c) => c.init.method === 'POST').init.body);
+  assert.equal(stored.total, 10);
+  assert.equal(stored.correct, r.body.correct);
+  assert.equal(stored.deck_version, 2);
+  assert.equal(stored.is_redo, false);
+  assert.equal('pointsAwarded' in r.body, false);
+  assert.ok(r.body.progress);
 });
 
 test('wrong method is 405', async () => {
   const r = res();
   await complete(req('GET'), r);
   assert.equal(r.statusCode, 405);
-});
-
-test('ranking exposes nicknames only, never other student ids', async () => {
-  routes.push(['students?', [STUDENT]], ['weekly_ranking?', [
-    { student_id: 'other', nickname: 'Zed', points: 30 },
-    { student_id: STUDENT.id, nickname: 'Ace', points: 12 },
-  ]]);
-  const r = res();
-  await ranking(req('GET'), r);
-  assert.deepEqual(r.body.me, { position: 2, points: 12 });
-  assert.ok(!JSON.stringify(r.body).includes('other'));
-  assert.equal(r.body.top[1].isMe, true);
 });
