@@ -213,9 +213,9 @@ function renderStep() {
 // uma vez no fim do bloco de vocabulário. Cartões não entram na nota.
 // O comando muda com o tipo de frente: lacuna, palavra ou definição.
 function cardPrompt(front, answer) {
-  if (String(front).includes('___')) return 'Qual palavra ou expressão completa a frase? Pense (ou diga em voz alta) e depois confira.';
-  if (front === answer) return 'Você lembra o que significa? Pense e depois confira.';
-  return 'Qual é a palavra ou expressão com este significado? Diga em voz alta e depois confira.';
+  if (String(front).includes('___')) return 'Complete a frase.';
+  if (front === answer) return 'O que significa?';
+  return 'Qual é a palavra com este significado?';
 }
 function renderCard(item, body, actions, next) {
   const front = item.front ?? item.word;
