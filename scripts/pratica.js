@@ -466,24 +466,37 @@ function referralSection(session, completedDecks) {
     }, 'Indicar pelo WhatsApp')));
 }
 
-// "Quer praticar mais?": livros escolhidos para o aluno, só no fim do deck.
+// "Quer praticar mais?": um livro em destaque (muda a cada aula) e a estante recolhida.
 // A Mesa não publica livros para menores; aqui a sessão confirma (menores não têm código).
 // Links simples, sem scripts da Amazon.
+const SHELF_GROUPS = { lighter: 'Leitura leve', level: 'No seu nível', challenge: 'Desafio' };
+function bookLink(book, className) {
+  return h('a', { class: className, href: book.url, target: '_blank', rel: 'sponsored noopener noreferrer' },
+    book.title);
+}
 function booksSection(books, session) {
-  if (!Array.isArray(books) || !books.length || !session?.referralCode) return null;
-  const item = (book) => h('li', { class: 'books__item' },
-    h('a', { class: 'books__title', href: book.url, target: '_blank', rel: 'sponsored noopener noreferrer' },
-      book.title),
+  if (!books || !session?.referralCode) return null;
+  const highlights = Array.isArray(books) ? books : books.highlights || [];
+  const shelf = Array.isArray(books) ? {} : books.shelf || {};
+  const groups = Object.keys(SHELF_GROUPS).filter((name) => shelf[name]?.length);
+  if (!highlights.length && !groups.length) return null;
+  const highlight = (book) => h('li', { class: 'books__item' },
+    book.quote ? h('blockquote', { class: 'books__quote', lang: 'en' }, `“${book.quote}”`) : null,
+    bookLink(book, 'books__title'),
     h('span', { class: 'books__author' }, ` — ${book.author}`),
     book.reason ? h('p', { class: 'books__reason' }, book.reason) : null);
-  const reading = books.filter((book) => book.kind !== 'support');
-  const support = books.filter((book) => book.kind === 'support');
+  const shelfItem = (book) => h('li', { class: 'shelf__item' },
+    bookLink(book, 'books__title'), h('span', { class: 'books__author' }, ` — ${book.author}`),
+    book.reason ? h('p', { class: 'books__reason' }, book.reason) : null);
   return h('section', { class: 'result__section books' },
     h('h2', {}, 'Quer praticar mais?'),
-    h('p', { class: 'pratica__lead' }, 'Ler em inglês é um dos melhores treinos. Separei estes livros pensando em você:'),
-    h('ul', { class: 'books__list' }, reading.map(item)),
-    support.length ? h('p', { class: 'books__label' }, 'Se quiser um apoio de estudo:') : null,
-    support.length ? h('ul', { class: 'books__list' }, support.map(item)) : null,
+    highlights.length ? h('p', { class: 'pratica__lead' }, 'Ler em inglês é um dos melhores treinos. Uma sugestão para você:') : null,
+    highlights.length ? h('ul', { class: 'books__list' }, highlights.map(highlight)) : null,
+    groups.length ? h('details', { class: 'shelf' },
+      h('summary', { class: 'shelf__toggle' }, 'Ver a estante'),
+      ...groups.map((name) => h('div', { class: 'shelf__group' },
+        h('h3', { class: 'shelf__title' }, SHELF_GROUPS[name]),
+        h('ul', { class: 'shelf__list' }, shelf[name].map(shelfItem))))) : null,
     h('p', { class: 'books__disclosure' },
       'Links de afiliado: como associado da Amazon, o JP ganha uma pequena comissão com compras qualificadas, sem custo extra para você.'));
 }
