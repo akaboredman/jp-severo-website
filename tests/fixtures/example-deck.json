@@ -1,0 +1,193 @@
+{
+  "schema": 1,
+  "lesson": {
+    "number": 13,
+    "date": "2026-09-28",
+    "title": "Your Elevator Pitch",
+    "grammar_target": "Present perfect for experience"
+  },
+  "blocks": [
+    {
+      "kind": "vocabulary",
+      "items": [
+        {
+          "type": "card",
+          "id": "v1",
+          "word": "pitch",
+          "meaning": "a short talk to persuade",
+          "example": "Example with pitch."
+        },
+        {
+          "type": "card",
+          "id": "v2",
+          "word": "networking",
+          "meaning": "meeting people for work",
+          "example": "Example with networking."
+        },
+        {
+          "type": "card",
+          "id": "v3",
+          "word": "stakeholder",
+          "meaning": "a person with an interest",
+          "example": "Example with stakeholder."
+        },
+        {
+          "type": "card",
+          "id": "v4",
+          "word": "leverage",
+          "meaning": "use something to get results",
+          "example": "Example with leverage."
+        },
+        {
+          "type": "card",
+          "id": "v5",
+          "word": "follow up",
+          "meaning": "contact again later",
+          "example": "Example with follow up."
+        },
+        {
+          "type": "card",
+          "id": "v6",
+          "word": "track record",
+          "meaning": "past achievements",
+          "example": "Example with track record."
+        },
+        {
+          "type": "gap_fill",
+          "id": "vx1",
+          "prompt": "I gave a short ___ at the event.",
+          "options": [
+            "pitch",
+            "leverage",
+            "stakeholder"
+          ],
+          "answer": 0,
+          "explanation": "A pitch is a short persuasive talk."
+        },
+        {
+          "type": "match",
+          "id": "vx2",
+          "pairs": [
+            {
+              "left": "pitch",
+              "right": "a short talk to persuade"
+            },
+            {
+              "left": "networking",
+              "right": "meeting people for work"
+            },
+            {
+              "left": "follow up",
+              "right": "contact again later"
+            }
+          ],
+          "explanation": "Review the cards if you missed any."
+        }
+      ]
+    },
+    {
+      "kind": "grammar",
+      "items": [
+        {
+          "type": "multiple_choice",
+          "id": "g1",
+          "prompt": "I ___ in sales for ten years.",
+          "options": [
+            "have worked",
+            "worked",
+            "am working"
+          ],
+          "answer": 0,
+          "explanation": "Present perfect: from the past until now."
+        },
+        {
+          "type": "multiple_choice",
+          "id": "g2",
+          "prompt": "___ you ever led a team?",
+          "options": [
+            "Did",
+            "Have",
+            "Are"
+          ],
+          "answer": 1,
+          "explanation": "Ever + experience: have you ever..."
+        },
+        {
+          "type": "gap_fill",
+          "id": "g3",
+          "prompt": "She has ___ three startups.",
+          "options": [
+            "founded",
+            "found",
+            "founding"
+          ],
+          "answer": 0,
+          "explanation": "Has + past participle."
+        },
+        {
+          "type": "reorder",
+          "id": "g4",
+          "tokens": [
+            "I",
+            "have",
+            "never",
+            "pitched",
+            "to",
+            "investors"
+          ],
+          "explanation": "Never goes between have and the participle."
+        },
+        {
+          "type": "multiple_choice",
+          "id": "g5",
+          "prompt": "We ___ the client yesterday.",
+          "options": [
+            "have met",
+            "met"
+          ],
+          "answer": 1,
+          "explanation": "Yesterday is a finished time: past simple."
+        },
+        {
+          "type": "gap_fill",
+          "id": "g6",
+          "prompt": "Have you ___ been to Berlin?",
+          "options": [
+            "already",
+            "ever",
+            "yet"
+          ],
+          "answer": 1,
+          "explanation": "Ever asks about experience."
+        }
+      ]
+    },
+    {
+      "kind": "from_class",
+      "items": [
+        {
+          "type": "error_correction",
+          "id": "c1",
+          "original": "I am working here since 2019.",
+          "options": [
+            "I have worked here since 2019.",
+            "I work here since 2019."
+          ],
+          "answer": 0,
+          "explanation": "Since + present perfect."
+        },
+        {
+          "type": "error_correction",
+          "id": "c2",
+          "original": "He explained me the plan.",
+          "options": [
+            "He explained me about the plan.",
+            "He explained the plan to me."
+          ],
+          "answer": 1,
+          "explanation": "Explain something to someone."
+        }
+      ]
+    }
+  ]
+}

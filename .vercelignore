@@ -1,0 +1,8 @@
+# Development-only files: never deployed.
+tests/
+tools/
+supabase/
+.env
+.env.*
+.agents/
+.claude/

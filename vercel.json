@@ -1,6 +1,28 @@
 {
   "rewrites": [
-    { "source": "/aula", "destination": "/aula.html" },
-    { "source": "/aula/", "destination": "/aula.html" }
+    {
+      "source": "/aula",
+      "destination": "/aula.html"
+    },
+    {
+      "source": "/aula/",
+      "destination": "/aula.html"
+    },
+    {
+      "source": "/pratica",
+      "destination": "/pratica.html"
+    },
+    {
+      "source": "/pratica/",
+      "destination": "/pratica.html"
+    },
+    {
+      "source": "/privacidade",
+      "destination": "/privacidade.html"
+    },
+    {
+      "source": "/privacidade/",
+      "destination": "/privacidade.html"
+    }
   ]
 }
