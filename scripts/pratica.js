@@ -211,9 +211,16 @@ function renderStep() {
 
 // Flashcard: tenta lembrar, vira, e marca. "Não lembrei" traz o cartão de volta
 // uma vez no fim do bloco de vocabulário. Cartões não entram na nota.
+// O comando muda com o tipo de frente: lacuna, palavra ou definição.
+function cardPrompt(front, answer) {
+  if (String(front).includes('___')) return 'Qual palavra ou expressão completa a frase? Pense (ou diga em voz alta) e depois confira.';
+  if (front === answer) return 'Você lembra o que significa? Pense e depois confira.';
+  return 'Qual é a palavra ou expressão com este significado? Diga em voz alta e depois confira.';
+}
 function renderCard(item, body, actions, next) {
   const front = item.front ?? item.word;
   const answer = item.answer ?? item.word;
+  body.append(h('p', { class: 'item__instruction' }, cardPrompt(front, answer)));
   body.append(h('p', { class: 'card-front', lang: 'en' }, String(front).replace('___', '_____')));
   const back = h('div', { class: 'card-back', hidden: true },
     answer && answer !== front ? h('p', { class: 'card-word', lang: 'en' }, answer) : null,
