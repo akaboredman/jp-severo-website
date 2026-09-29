@@ -211,11 +211,16 @@ function renderStep() {
 
 // Flashcard: tenta lembrar, vira, e marca. "Não lembrei" traz o cartão de volta
 // uma vez no fim do bloco de vocabulário. Cartões não entram na nota.
-// O comando muda com o tipo de frente: lacuna, palavra ou definição.
+// O comando muda com o tipo de frente: lacuna, palavra ou definição. Do B2 em diante os
+// cartões são todos em inglês, então o comando também.
+const CARD_PROMPTS = {
+  pt: { gap: 'Complete a frase.', word: 'O que significa?', meaning: 'Qual é a palavra com este significado?' },
+  en: { gap: 'Complete the sentence.', word: 'What does it mean?', meaning: 'Which word matches this meaning?' },
+};
 function cardPrompt(front, answer) {
-  if (String(front).includes('___')) return 'Complete a frase.';
-  if (front === answer) return 'O que significa?';
-  return 'Qual é a palavra com este significado?';
+  const prompts = CARD_PROMPTS[['B2', 'C1', 'C2'].includes(state.run?.deck?.lesson?.cefr) ? 'en' : 'pt'];
+  if (String(front).includes('___')) return prompts.gap;
+  return front === answer ? prompts.word : prompts.meaning;
 }
 function renderCard(item, body, actions, next) {
   const front = item.front ?? item.word;
