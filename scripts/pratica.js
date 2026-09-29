@@ -10,6 +10,15 @@ const KINDS = {
   reorder: 'Monte a frase', error_correction: 'Corrija', type_in: 'Escreva',
 };
 
+// Instruções no estilo do C1 Advanced (Reading and Use of English, Parts 1-4).
+const TASKS = {
+  lexical_cloze: 'Choose the word that best fits the gap.',
+  open_cloze: 'Write ONE word that best fits the gap.',
+  word_formation: 'Use the word in capitals to form a word that fits the gap.',
+  key_word_transformation: 'Complete the second sentence so that it has a similar meaning to the first. '
+    + 'Use the word given and do not change it. Use between three and six words.',
+};
+
 const view = document.getElementById('view');
 const main = document.getElementById('conteudo-principal');
 
@@ -172,7 +181,8 @@ function renderStep() {
   const bar = h('div', { class: 'progress', role: 'progressbar', 'aria-valuemin': 0,
     'aria-valuemax': run.steps.length, 'aria-valuenow': run.index },
   h('div', { class: 'progress__bar', style: `width:${(run.index / run.steps.length) * 100}%` }));
-  const body = h('div', { class: 'item' }, h('p', { class: 'item__kind' }, KINDS[item.type] || ''));
+  const body = h('div', { class: 'item' }, h('p', { class: 'item__kind' }, KINDS[item.type] || ''),
+    TASKS[item.task] ? h('p', { class: 'item__instruction', lang: 'en' }, TASKS[item.task]) : null);
   const actions = h('div', { class: 'actions' });
   const next = () => { run.index += 1; saveProgress(); renderStep(); };
   const answered = Object.hasOwn(run.answers, item.id);

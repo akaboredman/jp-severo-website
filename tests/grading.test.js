@@ -91,3 +91,12 @@ test('typed answers reject non-strings, blanks and oversized input', () => {
   assert.equal(gradeItem(item(v2, 'g6'), '   '), false);
   assert.equal(gradeItem(item(v2, 'g6'), 'at'.padEnd(500, ' ')), false);
 });
+
+test('contractions match their full forms, like the Cambridge answer key', () => {
+  assert.equal(normalizeTyped("doesn't earn nearly as"), normalizeTyped('does not earn nearly as'));
+  assert.equal(normalizeTyped("can't"), normalizeTyped('cannot'));
+  assert.equal(normalizeTyped("won't"), normalizeTyped('will not'));
+  assert.notEqual(normalizeTyped("it's"), normalizeTyped('it is'));
+  const kwt = { type: 'type_in', accepted: ['does not earn nearly as'] };
+  assert.equal(gradeItem(kwt, "DOESN'T EARN NEARLY AS"), true);
+});

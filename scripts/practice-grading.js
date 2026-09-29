@@ -6,10 +6,15 @@ const CHOICE = new Set(['multiple_choice', 'gap_fill', 'error_correction']);
 const GRADED = new Set([...CHOICE, 'match', 'reorder', 'type_in']);
 const MAX_TYPED = 200;
 
+// Unambiguous contractions only ("it's", "he'd" stay as typed). Order matters.
+const CONTRACTIONS = [["can't", 'can not'], ['cannot', 'can not'], ["won't", 'will not'],
+  ["shan't", 'shall not'], ["n't", ' not'], ["'re", ' are'], ["'ve", ' have'], ["'m", ' am'], ["'ll", ' will']];
+
 // Must match normalize_typed in planner/practice_deck.py.
 export function normalizeTyped(value) {
-  return String(value).replace(/[‘’]/g, "'").split(/\s+/).filter(Boolean).join(' ')
-    .toLowerCase().replace(/[.!?]+$/, '').trim();
+  let text = String(value).replace(/[\u2018\u2019]/g, "'").toLowerCase();
+  for (const [short, full] of CONTRACTIONS) text = text.split(short).join(full);
+  return text.split(/\s+/).filter(Boolean).join(' ').replace(/[.!?]+$/, '').trim();
 }
 
 export function gradedItems(deck) {
