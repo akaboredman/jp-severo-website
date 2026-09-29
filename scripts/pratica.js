@@ -226,6 +226,21 @@ function cardPrompt(front, answer) {
   // "water cooler talk" é uma expressão, não uma palavra.
   return String(answer).trim().includes(' ') ? prompts.phrase : prompts.meaning;
 }
+// Lembrar de cabeça um termo específico da aula ("report the ___" → raw figure) é difícil
+// demais: lacuna e definição viram escolha entre termos da própria aula, que servem de
+// distratores plausíveis. Cartão de palavra ("O que significa?") segue só com virar.
+const CARD_OPTIONS = 4;
+function cardOptions(item, answer) {
+  const others = new Set();
+  for (const block of state.run?.deck?.blocks || []) {
+    for (const other of block.items || []) {
+      const term = other.type === 'card' ? String(other.answer ?? other.word ?? '').trim() : '';
+      if (term && term.toLowerCase() !== String(answer).trim().toLowerCase()) others.add(term);
+    }
+  }
+  if (others.size < 2) return null;
+  return shuffle([answer, ...shuffle([...others]).slice(0, CARD_OPTIONS - 1)]);
+}
 function renderCard(item, body, actions, next) {
   const front = item.front ?? item.word;
   const answer = item.answer ?? item.word;
@@ -236,6 +251,23 @@ function renderCard(item, body, actions, next) {
     item.meaning ? h('p', { class: 'card-meaning', lang: 'en' }, item.meaning) : null,
     item.translation ? h('p', { class: 'card-translation' }, h('span', { class: 'card-tag' }, 'PT'), ' ', item.translation) : null,
     item.example ? h('p', { class: 'card-example', lang: 'en' }, item.example) : null);
+  const options = front !== answer ? cardOptions(item, answer) : null;
+  if (options) {
+    const buttons = options.map((option) => h('button', { class: 'choice', lang: 'en', onclick: () => pick(option) }, option));
+    body.append(h('div', { class: 'choices' }, buttons), back);
+    function pick(option) {
+      const right = option === answer;
+      buttons.forEach((button) => {
+        button.disabled = true;
+        if (button.textContent === answer) button.classList.add('is-right');
+        else if (button.textContent === option) button.classList.add('is-wrong');
+      });
+      back.hidden = false;
+      if (!right) requeue(item);  // volta no fim do bloco, como "Não lembrei"
+      continueButton(actions, next);
+    }
+    return;
+  }
   body.append(back);
   const reveal = h('button', { class: 'btn btn--primary', onclick: () => {
     back.hidden = false;
