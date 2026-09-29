@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { gradeDeck, gradedItems } from '../scripts/practice-grading.js';
+import { gradeDeck, gradeItem, gradedItems, normalizeTyped } from '../scripts/practice-grading.js';
 
 const deck = JSON.parse(readFileSync(new URL('./fixtures/example-deck.json', import.meta.url)));
 
@@ -65,4 +65,29 @@ test('garbage input is handled', () => {
   assert.equal(gradeDeck(deck, null).complete, false);
   assert.equal(gradeDeck(deck, [1, 2]).complete, false);
   assert.equal(gradeDeck({}, {}).complete, false);
+});
+
+const v2 = JSON.parse(readFileSync(new URL('./fixtures/example-deck-v2.json', import.meta.url)));
+const c1 = JSON.parse(readFileSync(new URL('./fixtures/example-deck-c1.json', import.meta.url)));
+const item = (deck, id) => deck.blocks.flatMap((b) => b.items).find((i) => i.id === id);
+
+test('flashcards are never graded', () => {
+  assert.ok(!gradedItems(v2).some((i) => i.type === 'card'));
+  assert.ok(gradedItems(v2).some((i) => i.id === 'g6'));
+});
+
+test('typed answers ignore case, spacing, curly quotes and final punctuation', () => {
+  assert.equal(gradeItem(item(v2, 'g6'), '  AT '), true);
+  assert.equal(gradeItem(item(v2, 'g6'), 'in'), false);
+  assert.equal(gradeItem(item(c1, 'g1'), 'Are  likely to.'), true);
+  assert.equal(gradeItem(item(c1, 'g1'), 'are quite likely to'), true);
+  assert.equal(gradeItem(item(c1, 'g1'), 'will likely'), false);
+  assert.equal(gradeItem(item(c1, 'g3'), 'upon'), true);
+  assert.equal(normalizeTyped('It’s   LIKELY!'), "it's likely");
+});
+
+test('typed answers reject non-strings, blanks and oversized input', () => {
+  assert.equal(gradeItem(item(v2, 'g6'), 0), false);
+  assert.equal(gradeItem(item(v2, 'g6'), '   '), false);
+  assert.equal(gradeItem(item(v2, 'g6'), 'at'.padEnd(500, ' ')), false);
 });

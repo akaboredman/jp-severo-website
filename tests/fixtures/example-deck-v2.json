@@ -1,0 +1,48 @@
+{
+  "schema": 2,
+  "lesson": {
+    "number": 14,
+    "date": "2026-09-28",
+    "title": "My Daily Routine",
+    "grammar_target": "Present simple (I / you / we / they)",
+    "cefr": "A1"
+  },
+  "blocks": [
+    {
+      "kind": "vocabulary",
+      "items": [
+        {"type": "card", "id": "v1", "front": "get up", "answer": "get up", "translation": "levantar (da cama)", "example": "I get up at seven."},
+        {"type": "card", "id": "v2", "front": "take a bus", "answer": "take a bus", "translation": "pegar um ônibus", "example": "We take a bus to work."},
+        {"type": "card", "id": "v3", "front": "have breakfast", "answer": "have breakfast", "translation": "tomar café da manhã", "example": "I have breakfast at home."},
+        {"type": "card", "id": "v4", "front": "look for", "answer": "look for", "translation": "procurar", "example": "I look for my keys every morning."},
+        {"type": "card", "id": "v5", "front": "on time", "answer": "on time", "translation": "na hora (pontual)", "example": "The class starts on time."},
+        {"type": "card", "id": "v6", "front": "crowded", "answer": "crowded", "translation": "lotado", "example": "The bus is crowded."},
+        {"type": "gap_fill", "id": "vx1", "prompt": "I ___ a bus to work.", "options": ["take", "do", "make"], "answer": 0, "explanation": "We say take a bus."},
+        {"type": "match", "id": "vx2", "pairs": [
+          {"left": "get up", "right": "levantar"},
+          {"left": "look for", "right": "procurar"},
+          {"left": "crowded", "right": "lotado"}
+        ], "explanation": "Review the cards you missed."},
+        {"type": "type_in", "id": "vx3", "prompt": "The class starts ___ time.", "accepted": ["on"], "hint": "preposição", "explanation": "On time = at the right time."}
+      ]
+    },
+    {
+      "kind": "grammar",
+      "items": [
+        {"type": "multiple_choice", "id": "g1", "prompt": "I ___ at seven every day.", "options": ["gets up", "get up", "getting up"], "answer": 1, "explanation": "I + verb: I get up."},
+        {"type": "multiple_choice", "id": "g2", "prompt": "We ___ breakfast at home.", "options": ["have", "has"], "answer": 0, "explanation": "We + have."},
+        {"type": "gap_fill", "id": "g3", "prompt": "They ___ a bus to school.", "options": ["takes", "taking", "take"], "answer": 2, "explanation": "They + take."},
+        {"type": "reorder", "id": "g4", "tokens": ["I", "work", "from", "home"], "explanation": "Subject + verb + from home."},
+        {"type": "gap_fill", "id": "g5", "prompt": "You ___ English on Mondays.", "options": ["studies", "study"], "answer": 1, "explanation": "You + study."},
+        {"type": "type_in", "id": "g6", "prompt": "I wake up ___ 6 a.m.", "accepted": ["at"], "hint": "preposição de horário", "explanation": "At + time: at 6 a.m."}
+      ]
+    },
+    {
+      "kind": "from_class",
+      "items": [
+        {"type": "error_correction", "id": "c1", "original": "I go to work in bus.", "options": ["I go to work by bus.", "I go to work on the bus car."], "answer": 0, "explanation": "By bus, by car, by train."},
+        {"type": "error_correction", "id": "c2", "original": "She have breakfast at eight.", "options": ["She have breakfast in eight.", "She has breakfast at eight."], "answer": 1, "explanation": "She + has."}
+      ]
+    }
+  ]
+}

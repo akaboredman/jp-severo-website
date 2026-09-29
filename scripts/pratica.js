@@ -6,8 +6,8 @@ const TOKEN_KEY = 'pratica.token';
 const PREVIEW_KEY = 'pratica.preview';
 const BLOCKS = { vocabulary: 'Vocabulário', grammar: 'Gramática', from_class: 'Da nossa aula' };
 const KINDS = {
-  card: 'Palavra nova', gap_fill: 'Complete', match: 'Ligue', multiple_choice: 'Escolha',
-  reorder: 'Monte a frase', error_correction: 'Corrija',
+  card: 'Flashcard', gap_fill: 'Complete', match: 'Ligue', multiple_choice: 'Escolha',
+  reorder: 'Monte a frase', error_correction: 'Corrija', type_in: 'Escreva',
 };
 
 const view = document.getElementById('view');
@@ -139,8 +139,14 @@ async function renderDeck(deckId) {
   await guarded(async () => {
     const data = await api(`/api/deck?id=${encodeURIComponent(deckId)}`);
     const saved = local.get(`pratica.progress.${data.id}.${data.version}`);
-    startRun({ deckId: data.id, version: data.version, deck: data.deck,
-      steps: steps(data.deck), index: saved?.index || 0, answers: saved?.answers || {} });
+    const run = { deckId: data.id, version: data.version, deck: data.deck,
+      steps: steps(data.deck), index: 0, answers: saved?.answers || {} };
+    for (const id of saved?.requeued || []) {
+      const step = run.steps.find((s) => s.item.id === id);
+      if (step) insertRequeue(run, step.item);
+    }
+    run.index = Math.min(saved?.index || 0, run.steps.length);
+    startRun(run);
   }, () => renderDeck(deckId));
 }
 
@@ -150,7 +156,10 @@ function startRun(run) {
 }
 
 function saveProgress() {
-  if (!state.preview) local.set(progressKey(state.run), { index: state.run.index, answers: state.run.answers });
+  if (!state.preview) {
+    local.set(progressKey(state.run), { index: state.run.index, answers: state.run.answers,
+      requeued: [...(state.run.requeued || [])] });
+  }
 }
 
 function renderStep() {
@@ -169,10 +178,9 @@ function renderStep() {
   const answered = Object.hasOwn(run.answers, item.id);
 
   if (item.type === 'card') {
-    body.append(h('p', { class: 'card-word', lang: 'en' }, item.word),
-      h('p', { class: 'card-meaning', lang: 'en' }, item.meaning),
-      h('p', { class: 'card-example', lang: 'en' }, item.example));
-    actions.append(h('button', { class: 'btn btn--primary', onclick: next }, 'Próximo'));
+    renderCard(item, body, actions, next);
+  } else if (item.type === 'type_in') {
+    renderTypeIn(item, body, actions, next, answered);
   } else if (['multiple_choice', 'gap_fill', 'error_correction'].includes(item.type)) {
     renderChoice(item, body, actions, next, answered);
   } else if (item.type === 'match') {
@@ -181,6 +189,69 @@ function renderStep() {
     renderReorder(item, body, actions, next, answered);
   }
   show(top, bar, body, actions);
+}
+
+// Flashcard: tenta lembrar, vira, e marca. "Não lembrei" traz o cartão de volta
+// uma vez no fim do bloco de vocabulário. Cartões não entram na nota.
+function renderCard(item, body, actions, next) {
+  const front = item.front ?? item.word;
+  const answer = item.answer ?? item.word;
+  body.append(h('p', { class: 'card-front', lang: 'en' }, String(front).replace('___', '_____')));
+  const back = h('div', { class: 'card-back', hidden: true },
+    answer && answer !== front ? h('p', { class: 'card-word', lang: 'en' }, answer) : null,
+    item.meaning ? h('p', { class: 'card-meaning', lang: 'en' }, item.meaning) : null,
+    item.translation ? h('p', { class: 'card-translation' }, h('span', { class: 'card-tag' }, 'PT'), ' ', item.translation) : null,
+    item.example ? h('p', { class: 'card-example', lang: 'en' }, item.example) : null);
+  body.append(back);
+  const reveal = h('button', { class: 'btn btn--primary', onclick: () => {
+    back.hidden = false;
+    const again = h('button', { class: 'btn btn--ghost', onclick: () => { requeue(item); next(); } }, 'Não lembrei');
+    const known = h('button', { class: 'btn btn--primary', onclick: next }, 'Lembrei');
+    actions.replaceChildren(known, again);
+    known.focus();
+  } }, 'Mostrar resposta');
+  actions.append(reveal);
+}
+
+function requeue(item) {
+  insertRequeue(state.run, item);
+  saveProgress();
+}
+
+// Coloca o cartão de novo depois do último passo do bloco de vocabulário (uma vez só).
+function insertRequeue(run, item) {
+  run.requeued = run.requeued || new Set();
+  if (run.requeued.has(item.id)) return;
+  run.requeued.add(item.id);
+  const last = run.steps.map((s) => s.block).lastIndexOf('vocabulary');
+  run.steps.splice(last + 1, 0, { block: 'vocabulary', item });
+}
+
+function renderTypeIn(item, body, actions, next, answered) {
+  if (item.context) body.append(h('p', { class: 'item__context', lang: 'en' }, item.context));
+  if (item.hint) body.append(h('p', { class: 'item__hint' }, item.hint));
+  body.append(h('p', { class: 'item__prompt', lang: 'en' }, item.prompt.replace('___', '_____')));
+  const input = h('input', { class: 'type-in', type: 'text', lang: 'en', autocomplete: 'off',
+    autocapitalize: 'off', spellcheck: 'false', maxlength: '200', 'aria-label': 'Sua resposta' });
+  body.append(input);
+  const check = h('button', { class: 'btn btn--primary', disabled: true, onclick: submit }, 'Verificar');
+  actions.append(check);
+  input.addEventListener('input', () => { check.disabled = !input.value.trim(); });
+  input.addEventListener('keydown', (event) => { if (event.key === 'Enter' && input.value.trim()) submit(); });
+  function submit() {
+    state.run.answers[item.id] = input.value.trim();
+    saveProgress();
+    reveal(state.run.answers[item.id]);
+  }
+  function reveal(answer) {
+    input.value = answer;
+    input.disabled = true;
+    const right = gradeItem(item, answer);
+    input.classList.add(right ? 'is-right' : 'is-wrong');
+    body.append(feedback(item, right, right ? null : `${item.accepted.join(' / ')}.`));
+    continueButton(actions, next);
+  }
+  if (answered) reveal(state.run.answers[item.id]); else setTimeout(() => input.focus(), 0);
 }
 
 function feedback(item, right, extra) {

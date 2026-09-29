@@ -3,7 +3,14 @@
 // Mirrors the contract in Class Planner planner/practice_deck.py (ticket 03).
 
 const CHOICE = new Set(['multiple_choice', 'gap_fill', 'error_correction']);
-const GRADED = new Set([...CHOICE, 'match', 'reorder']);
+const GRADED = new Set([...CHOICE, 'match', 'reorder', 'type_in']);
+const MAX_TYPED = 200;
+
+// Must match normalize_typed in planner/practice_deck.py.
+export function normalizeTyped(value) {
+  return String(value).replace(/[‘’]/g, "'").split(/\s+/).filter(Boolean).join(' ')
+    .toLowerCase().replace(/[.!?]+$/, '').trim();
+}
 
 export function gradedItems(deck) {
   const blocks = Array.isArray(deck?.blocks) ? deck.blocks : [];
@@ -19,6 +26,11 @@ export function gradeItem(item, answer) {
     if (!answer || typeof answer !== 'object' || Array.isArray(answer)) return false;
     return Object.keys(answer).length === item.pairs.length
       && item.pairs.every((pair) => answer[pair.left] === pair.right);
+  }
+  if (item.type === 'type_in') {
+    if (typeof answer !== 'string' || !answer.trim() || answer.length > MAX_TYPED) return false;
+    const typed = normalizeTyped(answer);
+    return (item.accepted || []).some((accepted) => normalizeTyped(accepted) === typed);
   }
   if (item.type === 'reorder') {
     return Array.isArray(answer) && answer.length === item.tokens.length

@@ -190,3 +190,29 @@
 .privacy ul { padding-left: 20px; list-style: disc; }
 .privacy a { color: var(--accent-dark); text-decoration: underline; text-underline-offset: 2px; }
 a.pratica-nav__label { text-decoration: none; }
+
+/* ---------- Flashcard (schema 2) ---------- */
+.card-front { margin-top: 14px; font-size: 1.7rem; line-height: 1.3; font-weight: 700; color: var(--text-primary); letter-spacing: -0.01em; }
+.card-back { margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--border); }
+.card-back .card-word { margin-top: 0; font-size: 1.4rem; }
+.card-translation { margin-top: 8px; font-size: 1.1rem; color: var(--text-primary); }
+.card-tag {
+  display: inline-block; padding: 1px 7px; border-radius: var(--radius-full);
+  background: var(--bg-elevated); border: 1px solid var(--border);
+  font-size: .72rem; font-weight: 700; letter-spacing: .04em; color: var(--text-muted); vertical-align: middle;
+}
+.card-back .card-example { border-top: 0; padding-top: 0; margin-top: 12px; }
+
+/* ---------- Escreva (type_in) ---------- */
+.item__context {
+  margin-top: 12px; padding: 12px 14px; border-left: 3px solid var(--border);
+  color: var(--text-body); line-height: 1.5; background: var(--bg-elevated);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+.item__hint { margin-top: 12px; font-size: .9rem; font-weight: 700; letter-spacing: .06em; color: var(--accent-dark); }
+.type-in {
+  margin-top: 18px; width: 100%; min-height: 52px; padding: 12px 14px;
+  font: inherit; font-size: 1.05rem; color: var(--text-primary);
+  background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-md);
+}
+.type-in:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }

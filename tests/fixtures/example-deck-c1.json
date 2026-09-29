@@ -1,0 +1,43 @@
+{
+  "schema": 2,
+  "lesson": {
+    "number": 13,
+    "date": "2026-09-28",
+    "title": "The Price of Progress",
+    "grammar_target": "Hedging and cautious language",
+    "cefr": "C1"
+  },
+  "blocks": [
+    {
+      "kind": "vocabulary",
+      "items": [
+        {"type": "card", "id": "v1", "front": "He tried to ___ the risks of the new plant.", "answer": "downplay", "meaning": "make something seem less important", "example": "Officials tend to downplay the risks."},
+        {"type": "card", "id": "v2", "front": "economic or economical: an ___ car", "answer": "economical", "meaning": "economical = not wasteful; economic = related to the economy", "example": "an economical car / economic growth"},
+        {"type": "card", "id": "v3", "front": "There is a ___ contrast between the two regions.", "answer": "stark", "meaning": "very clear and obvious", "example": "a stark contrast / a stark warning"},
+        {"type": "card", "id": "v4", "front": "These habits are deeply ___.", "answer": "entrenched", "meaning": "firmly established and hard to change", "example": "deeply entrenched attitudes"},
+        {"type": "card", "id": "v5", "front": "I ___ issue with that argument.", "answer": "take", "meaning": "take issue with = disagree with", "example": "Many experts take issue with the report."},
+        {"type": "card", "id": "v6", "front": "to ___ a claim (make it less absolute)", "answer": "hedge", "meaning": "express something cautiously", "translation": "relativizar", "example": "Scientists often hedge their claims."},
+        {"type": "multiple_choice", "id": "vx1", "prompt": "The report ___ the view that subsidies are necessary.", "options": ["holds", "maintains", "keeps", "sustains"], "answer": 1, "explanation": "Maintain a view = argue it is true."},
+        {"type": "type_in", "id": "vx2", "prompt": "The ___ of the new policy were felt within weeks.", "hint": "CONSEQUENT", "accepted": ["consequences"], "explanation": "Noun, plural here."}
+      ]
+    },
+    {
+      "kind": "grammar",
+      "items": [
+        {"type": "type_in", "id": "g1", "context": "It is possible that the costs will rise.", "hint": "LIKELY", "prompt": "The costs ___ rise.", "accepted": ["are likely to", "are quite likely to"], "explanation": "Be likely to + verb."},
+        {"type": "type_in", "id": "g2", "prompt": "The project was carried out ___ spite of strong opposition.", "accepted": ["in"], "explanation": "In spite of."},
+        {"type": "type_in", "id": "g3", "prompt": "Investment will depend largely ___ public support.", "accepted": ["on", "upon"], "explanation": "Depend on/upon."},
+        {"type": "multiple_choice", "id": "g4", "prompt": "It would ___ that the benefits outweigh the costs.", "options": ["appear", "look", "show"], "answer": 0, "explanation": "It would appear that... is a common hedge."},
+        {"type": "gap_fill", "id": "g5", "prompt": "The results are, ___ speaking, encouraging.", "options": ["widely", "broadly", "largely"], "answer": 1, "explanation": "Broadly speaking = in general."},
+        {"type": "type_in", "id": "g6", "context": "People say the company ignored the warnings.", "hint": "SAID", "prompt": "The company ___ the warnings.", "accepted": ["is said to have ignored"], "explanation": "Passive reporting, be said to have + participle."}
+      ]
+    },
+    {
+      "kind": "from_class",
+      "items": [
+        {"type": "error_correction", "id": "c1", "original": "It depends of the government.", "options": ["It depends on the government.", "It depends from the government."], "answer": 0, "explanation": "Depend on."},
+        {"type": "error_correction", "id": "c2", "original": "We should discuss about the risks.", "options": ["We should discuss on the risks.", "We should discuss the risks."], "answer": 1, "explanation": "Discuss has no preposition."}
+      ]
+    }
+  ]
+}
