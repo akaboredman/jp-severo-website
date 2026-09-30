@@ -4,7 +4,7 @@ import { send, studentRoute } from './_lib/http.js';
 // GET /api/decks: the student's decks, newest lesson first, with completion status.
 export default studentRoute('GET', async (req, res, student) => {
   const [decks, attempts] = await Promise.all([
-    select('decks', `select=id,lesson_number,lesson_date,title:content->lesson->>title`
+    select('decks', `select=id,lesson_number,lesson_date,first_opened_at,title:content->lesson->>title`
       + `&student_id=eq.${student.id}&order=lesson_number.desc`),
     select('attempts', `select=deck_id,correct,total,completed_at`
       + `&student_id=eq.${student.id}&completed_at=not.is.null`),
@@ -22,6 +22,7 @@ export default studentRoute('GET', async (req, res, student) => {
     lessonDate: deck.lesson_date,
     title: deck.title,
     done: best.has(deck.id),
+    opened: Boolean(deck.first_opened_at),
     best: best.has(deck.id)
       ? { correct: best.get(deck.id).correct, total: best.get(deck.id).total } : null,
   })));

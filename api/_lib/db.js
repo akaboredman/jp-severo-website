@@ -34,3 +34,14 @@ async function request(path, { method = 'GET', body, headers = {} } = {}) {
 
 export const select = (table, query) => request(`${table}?${query}`);
 export const insert = (table, row) => request(table, { method: 'POST', body: row });
+export const update = (table, query, patch) =>
+  request(`${table}?${query}`, { method: 'PATCH', body: patch, headers: { Prefer: 'return=minimal' } });
+
+// Access tracking for the teacher's dashboard: best effort, never breaks practice.
+export async function track(table, query, patch) {
+  try {
+    await update(table, query, patch);
+  } catch (error) {
+    console.error('track', table, error instanceof DbError ? JSON.stringify(error.body) : error);
+  }
+}

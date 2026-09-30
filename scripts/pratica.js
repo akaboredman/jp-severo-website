@@ -127,8 +127,8 @@ async function renderHome() {
       ? decks.map((deck) => h('button', { class: 'deck-row', onclick: () => renderDeck(deck.id) },
         h('span', { class: 'deck-row__title' }, `Aula ${deck.lessonNumber} · ${deck.title || ''}`),
         h('span', { class: 'deck-row__meta' }, niceDate(deck.lessonDate)),
-        h('span', { class: `deck-row__state deck-row__state--${deck.done ? 'done' : 'new'}` },
-          deck.done ? `Feito · ${deck.best.correct} de ${deck.best.total}` : 'Novo')))
+        h('span', { class: `deck-row__state deck-row__state--${deck.done ? 'done' : deck.opened ? 'todo' : 'new'}` },
+          deck.done ? `Feito · ${deck.best.correct} de ${deck.best.total}` : deck.opened ? 'A fazer' : 'Novo')))
       : [h('p', { class: 'deck-list__empty' }, 'Seu primeiro deck aparece aqui depois da próxima aula.')];
     show(
       h('h1', {}, `Olá, ${session.firstName}!`),
