@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aula ao vivo | JP Severo</title>
+  <!-- Aula particular: fora dos buscadores e sem pixel de anúncios. -->
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap">
+  <style>
+    :root { --ink: #1d2b3a; --mist: #eef2f6; --muted: #5b6875; }
+    html, body { margin: 0; height: 100%; background: var(--mist); color: var(--ink); font-family: Figtree, system-ui, sans-serif; }
+    #deck { display: none; width: 100%; height: 100%; border: 0; }
+    body.live #deck { display: block; }
+    body.live .ao-vivo__msg { display: none; }
+    .ao-vivo__msg { min-height: 100%; display: grid; place-items: center; padding: 24px; box-sizing: border-box; text-align: center; }
+    .ao-vivo__msg h1 { font-size: 22px; margin: 0 0 8px; }
+    .ao-vivo__msg p { margin: 0; color: var(--muted); font-size: 16px; line-height: 1.5; max-width: 420px; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" defer></script>
+  <script src="scripts/ao-vivo.js" defer></script>
+</head>
+<body>
+  <main class="ao-vivo__msg" aria-live="polite">
+    <div><h1 id="msgTitle">Abrindo a aula…</h1><p id="msgText"></p></div>
+  </main>
+  <!-- Sem allow-same-origin: o deck não acessa nada deste site. -->
+  <iframe id="deck" title="Aula" sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox" allow="fullscreen; clipboard-write"></iframe>
+</body>
+</html>

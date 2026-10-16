@@ -1,6 +1,14 @@
 {
   "rewrites": [
     {
+      "source": "/ao-vivo",
+      "destination": "/ao-vivo.html"
+    },
+    {
+      "source": "/ao-vivo/",
+      "destination": "/ao-vivo.html"
+    },
+    {
       "source": "/aula",
       "destination": "/aula.html"
     },

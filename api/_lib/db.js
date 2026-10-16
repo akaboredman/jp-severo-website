@@ -45,3 +45,16 @@ export async function track(table, query, patch) {
     console.error('track', table, error instanceof DbError ? JSON.stringify(error.body) : error);
   }
 }
+
+// Private Storage object as JSON; null when it does not exist.
+export async function storageGet(bucket, path) {
+  const { url, key } = config();
+  const auth = { apikey: key };
+  if (key.startsWith('eyJ')) auth.Authorization = `Bearer ${key}`;
+  const response = await fetch(`${url}/storage/v1/object/${bucket}/${path}`, { headers: auth });
+  const text = await response.text();
+  if (response.ok) return JSON.parse(text);
+  // Storage answers a missing object with 400 + statusCode "404".
+  if (response.status === 404 || /not_found|"404"/.test(text)) return null;
+  throw new DbError(response.status, text);
+}
