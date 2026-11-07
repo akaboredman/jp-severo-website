@@ -14,5 +14,9 @@ export default studentRoute('GET', async (req, res, student) => {
     // Minors never see the referral CTA.
     referralCode: student.is_minor ? null : student.referral_code,
     bonuses: { available: bonuses.filter((b) => !b.used_on).length, total: bonuses.length },
+    // Aulas desmarcadas ainda sem reposição, com o link da agenda do professor.
+    makeup: student.makeup_pending > 0 && /^https:\/\//.test(student.makeup_agenda_url || '')
+      ? { pending: student.makeup_pending, agendaUrl: student.makeup_agenda_url }
+      : null,
   });
 });

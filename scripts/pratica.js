@@ -123,6 +123,11 @@ async function renderHome() {
           ? 'Você ganhou 1 aula bônus por indicação. Obrigado!'
           : `Você tem ${session.bonuses.available} aulas bônus por indicação. Obrigado!`)
       : null;
+    const makeup = session.makeup
+      ? h('p', { class: 'pratica__notice pratica__notice--makeup' },
+        `Você tem ${session.makeup.pending} ${session.makeup.pending === 1 ? 'aula' : 'aulas'} para repor. `,
+        h('a', { href: session.makeup.agendaUrl, target: '_blank', rel: 'noopener' }, 'Agendar reposição →'))
+      : null;
     const rows = decks.length
       ? decks.map((deck) => h('button', { class: 'deck-row', onclick: () => renderDeck(deck.id) },
         h('span', { class: 'deck-row__title' }, `Aula ${deck.lessonNumber} · ${deck.title || ''}`),
@@ -134,6 +139,7 @@ async function renderHome() {
       h('h1', {}, `Olá, ${session.firstName}!`),
       h('p', { class: 'pratica__lead' }, 'Aqui ficam os exercícios de cada aula. Leva uns 10 minutos.'),
       progress ? progressStrip(progress) : null,
+      makeup,
       bonus,
       h('div', { class: 'deck-list', role: 'list' }, rows),
       // Discreto, depois dos decks: praticar vem primeiro. Nunca para menores.

@@ -127,3 +127,20 @@ test('deck list says which decks were opened', async () => {
   await decksRoute(req('GET'), r);
   assert.equal(r.body[0].opened, false);
 });
+
+test('makeup notice only with pending classes and an https agenda link', async () => {
+  routes.push(['students?', [{ ...STUDENT, makeup_pending: 3, makeup_agenda_url: 'https://cal.test/jp' }]]);
+  let r = res();
+  await session(req('GET'), r);
+  assert.deepEqual(r.body.makeup, { pending: 3, agendaUrl: 'https://cal.test/jp' });
+  routes.length = 0;
+  routes.push(['students?', [{ ...STUDENT, makeup_pending: 0, makeup_agenda_url: 'https://cal.test/jp' }]]);
+  r = res();
+  await session(req('GET'), r);
+  assert.equal(r.body.makeup, null);
+  routes.length = 0;
+  routes.push(['students?', [{ ...STUDENT, makeup_pending: 2, makeup_agenda_url: 'javascript:alert(1)' }]]);
+  r = res();
+  await session(req('GET'), r);
+  assert.equal(r.body.makeup, null);
+});
